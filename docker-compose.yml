@@ -21,8 +21,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 120M
+          cpus: '0.3'
+          memory: 70M
 
   redis:
     image: redis:7-alpine
@@ -38,8 +38,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.1'
-          memory: 40M
+          cpus: '0.3'
+          memory: 70M
 
   app-native-1:
     build:
@@ -65,8 +65,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 80M
+          cpus: '0.3'
+          memory: 70M
 
   app-native-2:
     build:
@@ -92,13 +92,13 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 80M
+          cpus: '0.3'
+          memory: 70M
 
   nginx:
     image: nginx:alpine
     ports:
-      - "9999:9999"
+      - "9999:80"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
@@ -109,8 +109,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.1'
-          memory: 20M
+          cpus: '0.3'
+          memory: 70M
 
 networks:
   backend:

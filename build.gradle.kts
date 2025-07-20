@@ -25,9 +25,16 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
-    implementation("org.springframework.boot:spring-boot-starter-data-redis")
-    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-data-jdbc") {
+        exclude(group = "io.netty")
+    }
+    implementation("org.springframework.boot:spring-boot-starter-data-redis") {
+        exclude(group = "io.netty")
+    }
+    implementation("org.springframework.boot:spring-boot-starter-web") {
+        exclude(group = "io.netty")
+    }
+    implementation("io.netty:netty-all:4.2.3.Final")
     compileOnly("org.projectlombok:lombok")
     runtimeOnly("org.postgresql:postgresql")
     annotationProcessor("org.projectlombok:lombok")
@@ -37,4 +44,29 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+// Configuração para eliminar avisos do JDK 24+ relacionados ao Netty
+tasks.withType<JavaExec> {
+    jvmArgs(
+        "--sun-misc-unsafe-memory-access=allow",
+        "--enable-native-access=ALL-UNNAMED"
+    )
+}
+
+// Configuração para bootRun
+tasks.named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
+    jvmArgs(
+        "--sun-misc-unsafe-memory-access=allow",
+        "--enable-native-access=ALL-UNNAMED"
+    )
+}
+
+// Configuração para testes
+tasks.withType<Test> {
+    useJUnitPlatform()
+    jvmArgs(
+        "--sun-misc-unsafe-memory-access=allow",
+        "--enable-native-access=ALL-UNNAMED"
+    )
 }

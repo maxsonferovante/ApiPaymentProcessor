@@ -1,0 +1,59 @@
+# Arquivos de build e cache
+build/
+.gradle/
+target/
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Logs
+*.log
+logs/
+
+# Arquivos temporários
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Documentação e scripts
+README.md
+ARCHITECTURE.md
+*.md
+test-endpoints.sh
+
+# Arquivos de configuração local
+*.env
+.env*
+
+# Arquivos de backup
+*.bak
+*.backup
+
+# Node modules (caso existam)
+node_modules/
+
+# Arquivos de sistema
+.pytest_cache/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Arquivos de teste
+src/test/ 

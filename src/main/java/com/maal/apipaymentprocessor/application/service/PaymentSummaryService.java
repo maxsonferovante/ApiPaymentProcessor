@@ -1,27 +1,34 @@
 package com.maal.apipaymentprocessor.application.service;
 
+import com.maal.apipaymentprocessor.adapter.out.http.PaymentProcessorClient;
 import com.maal.apipaymentprocessor.domain.port.in.PaymentSummaryUseCase;
-import com.maal.apipaymentprocessor.domain.port.out.PaymentSummaryRepository;
 import com.maal.apipaymentprocessor.entrypoint.web.dto.PaymentSummaryGetResponse;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 
+/**
+ * Serviço que consulta resumos de pagamentos diretamente nos Payment Processors
+ * Substituiu a consulta ao banco PostgreSQL por chamadas HTTP aos endpoints administrativos
+ */
 @Service
 public class PaymentSummaryService implements PaymentSummaryUseCase {
     
-    private final PaymentSummaryRepository paymentSummaryRepository;
+    private final PaymentProcessorClient paymentProcessorClient;
 
-    public PaymentSummaryService(PaymentSummaryRepository paymentSummaryRepository) {
-        this.paymentSummaryRepository = paymentSummaryRepository;
+    public PaymentSummaryService(PaymentProcessorClient paymentProcessorClient) {
+        this.paymentProcessorClient = paymentProcessorClient;
     }
 
     @Override
     public PaymentSummaryGetResponse getPaymentSummary(String from, String to) {
+        // Parsing dos timestamps de entrada
         Instant fromInstant = parseTimestamp(from, "from");
         Instant toInstant = parseTimestamp(to, "to");
-        return paymentSummaryRepository.getSummaryByTimeRange(fromInstant, toInstant);
+        
+        // Consulta direta aos Payment Processors via HTTP
+        return paymentProcessorClient.getPaymentSummary(fromInstant, toInstant);
     }
 
     private Instant parseTimestamp(String timestamp, String paramName) {

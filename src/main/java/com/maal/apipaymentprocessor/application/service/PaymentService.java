@@ -5,29 +5,28 @@ import com.maal.apipaymentprocessor.domain.model.PaymentProcessorType;
 import com.maal.apipaymentprocessor.domain.model.PaymentStatus;
 import com.maal.apipaymentprocessor.domain.port.in.ProcessPaymentUseCase;
 import com.maal.apipaymentprocessor.domain.port.out.PaymentQueuePublisher;
-import com.maal.apipaymentprocessor.domain.port.out.PaymentRepository;
 import com.maal.apipaymentprocessor.entrypoint.web.dto.PaymentRequest;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 
+/**
+ * Serviço de processamento de pagamentos
+ * Removida a dependência do banco PostgreSQL - agora apenas publica na fila Redis
+ */
 @Service
 public class PaymentService implements ProcessPaymentUseCase {
     
     private final PaymentQueuePublisher paymentQueuePublisher;
-    private final PaymentRepository paymentRepository;
 
-    public PaymentService(
-            PaymentQueuePublisher paymentQueuePublisher,
-            PaymentRepository paymentRepository
-    ) {
+    public PaymentService(PaymentQueuePublisher paymentQueuePublisher) {
         this.paymentQueuePublisher = paymentQueuePublisher;
-        this.paymentRepository = paymentRepository;
     }
 
     @Override
     public void receivePayment(PaymentRequest request) {
+        // Validação do valor do pagamento
         if (request.getAmount() == null || request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Invalid payment amount");
         }
@@ -41,13 +40,15 @@ public class PaymentService implements ProcessPaymentUseCase {
                 PaymentStatus.PENDING
         );
         
-        paymentRepository.save(payment);
+        // Apenas publica na fila Redis - não salva mais no banco
         paymentQueuePublisher.publish(payment);
     }
 
     @Override
     public void purgeAllPayments() {
-        paymentRepository.deleteAll();
+        // Como não temos mais banco local, esta operação não faz nada
+        // Os dados ficam nos Payment Processors
+        System.out.println("Purge operation not applicable - data stored in Payment Processors");
     }
 }
 

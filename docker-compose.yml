@@ -17,9 +17,7 @@ services:
           memory: 40M
 
   app-native-1:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: docker.io/maxsonferovante/api-payment-processor
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
@@ -41,9 +39,7 @@ services:
           memory: 70M
 
   app-native-2:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: docker.io/maxsonferovante/api-payment-processor
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379

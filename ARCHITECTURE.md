@@ -17,7 +17,7 @@ src/main/java/com/maal/apipaymentprocessor/
 ├── adapter/                    # Camada de Adaptadores
 │   ├── in/                     # Adaptadores de entrada
 │   └── out/                    # Adaptadores de saída
-│       ├── database/           # Persistência
+│       ├── http/               # Cliente HTTP para Payment Processors
 │       └── redis/              # Mensageria
 └── entrypoint/                 # Camada de Interface
     └── web/                    # Controllers REST
@@ -57,26 +57,6 @@ public interface PaymentRequestMapper {
 
 ### 📤 Ports de Saída (Gateways)
 
-#### `PaymentRepository`
-Interface para persistência de pagamentos.
-```java
-public interface PaymentRepository {
-    void save(Payment payment);
-    void deleteAll();
-}
-```
-**Implementado por:** `PaymentRepositoryJdbc`
-
-#### `PaymentSummaryRepository`
-Interface para consultas de resumo de pagamentos.
-```java
-public interface PaymentSummaryRepository {
-    PaymentSummaryGetResponse getSummaryByTimeRange(Instant from, Instant to);
-    PaymentSummaryGetResponse getTotalSummary();
-}
-```
-**Implementado por:** `PaymentSummaryRepositoryJdbc`
-
 #### `PaymentQueuePublisher`
 Interface para publicação em filas de mensageria.
 ```java
@@ -105,7 +85,7 @@ public interface PaymentQueuePublisher {
 
 ### 4. **Flexibilidade**
 - Adaptadores podem ser substituídos sem impactar o core
-- Ex: trocar PostgreSQL por MongoDB, Redis por RabbitMQ
+- Ex: trocar consultas HTTP por cache local, Redis por RabbitMQ
 
 ## 🔄 Fluxo de Execução
 
@@ -118,9 +98,22 @@ public interface PaymentQueuePublisher {
     ↓
 [PaymentService] (implementação)
     ↓
-[PaymentRepository] (interface) → [PaymentRepositoryJdbc] (implementação)
-    ↓
 [PaymentQueuePublisher] (interface) → [RedisPaymentQueuePublisher] (implementação)
+    ↓
+[Redis Queue]
+
+Para consultas de resumo:
+[HTTP Request /payments-summary]
+    ↓
+[PaymentController]
+    ↓
+[PaymentSummaryUseCase] (interface)
+    ↓
+[PaymentSummaryService] (implementação)
+    ↓
+[PaymentProcessorClient] → [Payment Processors via HTTP]
+    ↓
+[Response JSON]
 ```
 
 ## 🧪 Vantagens da Implementação
@@ -139,9 +132,9 @@ public interface PaymentQueuePublisher {
 3. Nenhuma mudança necessária nas outras camadas
 
 ### Adicionar Cache
-1. Criar `CachedPaymentSummaryRepository implements PaymentSummaryRepository`
-2. Usar padrão Decorator para envolver o repositório existente
-3. Configurar injeção de dependência
+1. Criar cache local para respostas dos Payment Processors
+2. Implementar cache no `PaymentProcessorClient`
+3. Configurar TTL apropriado para manter consistência
 
 ## 🎯 Compliance com Clean Architecture
 - ✅ Entities (domain/model)

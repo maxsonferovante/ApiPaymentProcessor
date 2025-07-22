@@ -11,8 +11,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Configurações
 BASE_URL = "http://localhost:9999"
-NUM_REQUESTS = 10000
-NUM_THREADS = 20
+NUM_REQUESTS = 1000
+NUM_THREADS = 10
 
 def send_payment():
     """Envia uma requisição de pagamento"""

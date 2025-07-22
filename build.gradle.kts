@@ -25,9 +25,6 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-data-jdbc") {
-        exclude(group = "io.netty")
-    }
     implementation("org.springframework.boot:spring-boot-starter-data-redis") {
         exclude(group = "io.netty")
     }
@@ -36,7 +33,6 @@ dependencies {
     }
     implementation("io.netty:netty-all:4.2.3.Final")
     compileOnly("org.projectlombok:lombok")
-    runtimeOnly("org.postgresql:postgresql")
     annotationProcessor("org.projectlombok:lombok")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

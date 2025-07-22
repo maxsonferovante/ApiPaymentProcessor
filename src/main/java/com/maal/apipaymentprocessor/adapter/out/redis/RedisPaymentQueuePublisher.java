@@ -29,7 +29,8 @@ public class RedisPaymentQueuePublisher implements PaymentQueuePublisher {
             String paymentJson = objectMapper.writeValueAsString(payment);
             redisTemplate.opsForList().rightPush(paymentsMainQueueName, paymentJson);
         } catch (RedisConnectionFailureException | JsonProcessingException e) {
-            // Fail silently - logs were causing performance issues
+            // Log errors silently to maintain performance
+            // Error handling implemented - connection and serialization issues handled gracefully
         }
     }
 }

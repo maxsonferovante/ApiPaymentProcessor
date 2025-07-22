@@ -1,24 +1,26 @@
 package com.maal.apipaymentprocessor.application.service;
 
-import com.maal.apipaymentprocessor.adapter.out.http.PaymentProcessorClient;
+import com.maal.apipaymentprocessor.adapter.out.redis.RedisPaymentSummaryRepository;
 import com.maal.apipaymentprocessor.domain.port.in.PaymentSummaryUseCase;
 import com.maal.apipaymentprocessor.entrypoint.web.dto.PaymentSummaryGetResponse;
+import com.maal.apipaymentprocessor.entrypoint.web.dto.SummaryDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 
 /**
- * Serviço que consulta resumos de pagamentos diretamente nos Payment Processors
- * Substituiu a consulta ao banco PostgreSQL por chamadas HTTP aos endpoints administrativos
+ * Serviço de consulta de resumos de pagamentos
+ * Consulta dados locais do Redis (salvos pelo async-worker)
+ * Muito mais rápido que chamadas HTTP aos Payment Processors
  */
 @Service
 public class PaymentSummaryService implements PaymentSummaryUseCase {
     
-    private final PaymentProcessorClient paymentProcessorClient;
+    private final RedisPaymentSummaryRepository redisPaymentSummaryRepository;
 
-    public PaymentSummaryService(PaymentProcessorClient paymentProcessorClient) {
-        this.paymentProcessorClient = paymentProcessorClient;
+    public PaymentSummaryService(RedisPaymentSummaryRepository redisPaymentSummaryRepository) {
+        this.redisPaymentSummaryRepository = redisPaymentSummaryRepository;
     }
 
     @Override
@@ -27,8 +29,14 @@ public class PaymentSummaryService implements PaymentSummaryUseCase {
         Instant fromInstant = parseTimestamp(from, "from");
         Instant toInstant = parseTimestamp(to, "to");
         
-        // Consulta direta aos Payment Processors via HTTP
-        return paymentProcessorClient.getPaymentSummary(fromInstant, toInstant);
+        // Consultar Redis (dados salvos pelo async-worker)
+        SummaryDetails defaultSummary = redisPaymentSummaryRepository
+            .getProcessorSummary("default", fromInstant, toInstant);
+            
+        SummaryDetails fallbackSummary = redisPaymentSummaryRepository
+            .getProcessorSummary("fallback", fromInstant, toInstant);
+        
+        return new PaymentSummaryGetResponse(defaultSummary, fallbackSummary);
     }
 
     private Instant parseTimestamp(String timestamp, String paramName) {

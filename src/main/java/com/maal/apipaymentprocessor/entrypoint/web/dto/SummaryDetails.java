@@ -16,6 +16,10 @@ public class SummaryDetails {
     private Integer totalRequests;
     private BigDecimal totalAmount;
 
+    // Construtor padrão para serialização JSON
+    public SummaryDetails() {
+    }
+
     public SummaryDetails(Integer totalRequests, BigDecimal totalAmount) {
         this.totalRequests = totalRequests;
         this.totalAmount = totalAmount;

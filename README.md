@@ -5,14 +5,14 @@ Este projeto é o serviço de API principal para a [Rinha de Backend 2025](https
 ## Funcionalidades
 
 * Recebe requisições de pagamento (`POST /payments`) e as envia para uma fila Redis.
-* Fornece um resumo dos pagamentos processados (`GET /payments-summary`), consultando os serviços externos diretamente.
+* Fornece um resumo dos pagamentos processados (`GET /payments-summary`), consultando dados locais do Redis (salvos pelo async-worker).
 
 ## Tecnologias Principais
 
-* Java 24
-* Spring Boot
-* Redis (para enfileiramento)
-* RestTemplate (para chamadas HTTP externas)
+* Java 24 com GraalVM Native Image
+* Spring Boot 3.5 com Virtual Threads
+* Redis (para filas de mensagens e cache de metadados)
+* Clean Architecture (Ports & Adapters)
 * Nginx (como Load Balancer - configuração na raiz do projeto)
 
 ## Como Rodar

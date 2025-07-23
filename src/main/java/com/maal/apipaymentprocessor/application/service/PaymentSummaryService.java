@@ -23,6 +23,15 @@ public class PaymentSummaryService implements PaymentSummaryUseCase {
         this.redisPaymentSummaryRepository = redisPaymentSummaryRepository;
     }
 
+  /**
+     * Remove todos os pagamentos do sistema
+     */
+    @Override
+     public void purgeAllPayments() {
+        redisPaymentSummaryRepository.deleteAll();
+     }
+
+
     @Override
     public PaymentSummaryGetResponse getPaymentSummary(String from, String to) {
         // Parsing dos timestamps de entrada

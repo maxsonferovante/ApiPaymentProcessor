@@ -47,7 +47,7 @@ public class PaymentController {
 
     @PostMapping("/purge-payments")
     public ResponseEntity<Void> purgePayments() {
-        processPaymentUseCase.purgeAllPayments();
+        paymentSummaryUseCase.purgeAllPayments();
         return ResponseEntity.ok().build();
     }
 }

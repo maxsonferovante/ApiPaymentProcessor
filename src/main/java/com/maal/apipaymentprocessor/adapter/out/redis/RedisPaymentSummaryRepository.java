@@ -28,6 +28,14 @@ public class RedisPaymentSummaryRepository {
     }
 
     /**
+     * Remove todos os contadores agregados do Redis
+     */
+    public void deleteAll() {
+        redisTemplate.delete(COUNTERS_KEY);
+    }
+
+
+    /**
      * Obtém resumo de pagamentos processados por tipo de processador.
      * 
      * OTIMIZAÇÃO: Ignora filtros de data para máxima performance.

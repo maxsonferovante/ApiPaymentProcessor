@@ -3,11 +3,30 @@ services:
     image: redis:7-alpine
     ports:
       - "6379:6379"
+    # Configuração otimizada para recursos limitados
+    command: >
+      redis-server
+      --maxmemory 30mb
+      --maxmemory-policy allkeys-lru
+      --save ""
+      --appendonly no
+      --tcp-keepalive 60
+      --timeout 300
+      --stop-writes-on-bgsave-error no
+      --hash-max-ziplist-entries 512
+      --hash-max-ziplist-value 64
+      --list-max-ziplist-size -2
+      --set-max-intset-entries 512
+      --zset-max-ziplist-entries 128
+      --zset-max-ziplist-value 64
+      --loglevel warning
+      --databases 1
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
+      interval: 10s  # Reduzido frequência
+      timeout: 2s    # Timeout menor
+      retries: 3     # Menos retries
+      start_period: 5s
     networks:
       - backend
     deploy:
@@ -15,17 +34,23 @@ services:
         limits:
           cpus: '0.2'
           memory: 40M
+        reservations:
+          cpus: '0.1'
+          memory: 20M
+    # Otimizações de container
+    sysctls:
+      - net.core.somaxconn=512
+    ulimits:
+      memlock: -1
+    restart: unless-stopped
 
   app-native-1:
     image: docker.io/maxsonferovante/api-payment-processor
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      REDIS_TIMEOUT: 500ms
+      REDIS_TIMEOUT: 300ms
       REDIS_QUEUE_PAYMENTS_MAIN: rinha-payments-main-queue
-      PAYMENT_PROCESSOR_DEFAULT_URL: http://payment-processor-default:8080
-      PAYMENT_PROCESSOR_FALLBACK_URL: http://payment-processor-fallback:8080
-      PAYMENT_PROCESSOR_ADMIN_TOKEN: 123
     depends_on:
       redis:
         condition: service_healthy
@@ -36,18 +61,15 @@ services:
       resources:
         limits:
           cpus: '0.35'
-          memory: 70M
+          memory: 65M
 
   app-native-2:
     image: docker.io/maxsonferovante/api-payment-processor
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      REDIS_TIMEOUT: 500ms
+      REDIS_TIMEOUT: 300ms
       REDIS_QUEUE_PAYMENTS_MAIN: rinha-payments-main-queue
-      PAYMENT_PROCESSOR_DEFAULT_URL: http://payment-processor-default:8080
-      PAYMENT_PROCESSOR_FALLBACK_URL: http://payment-processor-fallback:8080
-      PAYMENT_PROCESSOR_ADMIN_TOKEN: 123
     depends_on:
       redis:
         condition: service_healthy
@@ -58,7 +80,7 @@ services:
       resources:
         limits:
           cpus: '0.35'
-          memory: 70M
+          memory: 65M
 
   # Processador assíncrono de pagamentos - consome mensagens do Redis
   async-worker:
@@ -71,9 +93,9 @@ services:
       PAYMENT_PROCESSOR_DEFAULT_URL: http://payment-processor-default:8080
       PAYMENT_PROCESSOR_FALLBACK_URL: http://payment-processor-fallback:8080
       WORKER_BLOCKING_TIMEOUT: 300
-      WORKER_MAX_CONCURRENT_PAYMENTS: 400
-      WORKER_BATCH_SIZE: 75
-      WORKER_EXECUTION_DELAY: 100
+      WORKER_MAX_CONCURRENT_PAYMENTS: 350
+      WORKER_BATCH_SIZE: 100
+      WORKER_EXECUTION_DELAY: 250
     depends_on:
       redis:
         condition: service_healthy

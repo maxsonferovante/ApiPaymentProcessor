@@ -13,9 +13,5 @@ public interface ProcessPaymentUseCase {
      * @param request o request de pagamento
      */
     void receivePayment(PaymentRequest request);
-    
-    /**
-     * Remove todos os pagamentos do sistema
-     */
-    void purgeAllPayments();
+
 } 

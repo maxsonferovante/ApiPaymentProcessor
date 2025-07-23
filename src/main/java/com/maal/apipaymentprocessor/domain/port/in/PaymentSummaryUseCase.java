@@ -14,5 +14,10 @@ public interface PaymentSummaryUseCase {
      * @param to data de fim (pode ser null)
      * @return resumo com totais por tipo de processador
      */
-    PaymentSummaryGetResponse getPaymentSummary(String from, String to);
+    PaymentSummaryGetResponse getPaymentSummary(String from, String to);  
+    
+    /**
+     * Remove todos os pagamentos do sistema
+     */
+   void purgeAllPayments();
 } 

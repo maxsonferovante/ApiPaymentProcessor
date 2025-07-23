@@ -42,14 +42,7 @@ public class PaymentService implements ProcessPaymentUseCase {
         
         // Apenas publica na fila Redis - não salva mais no banco
         paymentQueuePublisher.publish(payment);
-    }
-
-    @Override
-    public void purgeAllPayments() {
-        // Como não temos mais banco local, esta operação não faz nada
-        // Os dados ficam nos Payment Processors
-        System.out.println("Purge operation not applicable - data stored in Payment Processors");
-    }
+    }  
 }
 
 

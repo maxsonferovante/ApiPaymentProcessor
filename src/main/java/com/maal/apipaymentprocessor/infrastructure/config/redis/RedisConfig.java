@@ -1,4 +1,4 @@
-package com.maal.apipaymentprocessor.adapter.out.redis;
+package com.maal.apipaymentprocessor.infrastructure.config.redis;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;

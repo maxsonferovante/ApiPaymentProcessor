@@ -3,15 +3,15 @@ services:
     image: redis:7-alpine
     ports:
       - "6379:6379"
-    # Configuração otimizada para recursos limitados
+    # Configuração otimizada para recursos limitados mas estáveis
     command: >
       redis-server
-      --maxmemory 30mb
+      --maxmemory 60mb
       --maxmemory-policy allkeys-lru
       --save ""
       --appendonly no
       --tcp-keepalive 60
-      --timeout 300
+      --timeout 600
       --stop-writes-on-bgsave-error no
       --hash-max-ziplist-entries 512
       --hash-max-ziplist-value 64
@@ -21,22 +21,24 @@ services:
       --zset-max-ziplist-value 64
       --loglevel warning
       --databases 1
+      --tcp-backlog 511
+      --maxclients 1000
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 10s  # Reduzido frequência
-      timeout: 2s    # Timeout menor
-      retries: 3     # Menos retries
+      interval: 10s
+      timeout: 3s
+      retries: 3
       start_period: 5s
     networks:
       - backend
     deploy:
       resources:
         limits:
-          cpus: '0.2'
-          memory: 40M
+          cpus: '0.25'
+          memory: 60M
         reservations:
-          cpus: '0.1'
-          memory: 20M
+          cpus: '0.15'
+          memory: 30M
     # Otimizações de container
     sysctls:
       - net.core.somaxconn=512
@@ -49,7 +51,7 @@ services:
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      REDIS_TIMEOUT: 300ms
+      REDIS_TIMEOUT: 600ms
       REDIS_QUEUE_PAYMENTS_MAIN: rinha-payments-main-queue
     depends_on:
       redis:
@@ -68,7 +70,7 @@ services:
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      REDIS_TIMEOUT: 300ms
+      REDIS_TIMEOUT: 600ms
       REDIS_QUEUE_PAYMENTS_MAIN: rinha-payments-main-queue
     depends_on:
       redis:
@@ -88,14 +90,14 @@ services:
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      REDIS_TIMEOUT: 500ms
+      REDIS_TIMEOUT: 600ms
       REDIS_QUEUE_PAYMENTS_MAIN: rinha-payments-main-queue
       PAYMENT_PROCESSOR_DEFAULT_URL: http://payment-processor-default:8080
       PAYMENT_PROCESSOR_FALLBACK_URL: http://payment-processor-fallback:8080
-      WORKER_BLOCKING_TIMEOUT: 300
-      WORKER_MAX_CONCURRENT_PAYMENTS: 350
-      WORKER_BATCH_SIZE: 100
-      WORKER_EXECUTION_DELAY: 250
+      WORKER_BLOCKING_TIMEOUT: 500
+      WORKER_MAX_CONCURRENT_PAYMENTS: 300
+      WORKER_BATCH_SIZE: 50
+      WORKER_EXECUTION_DELAY: 100
     depends_on:
       redis:
         condition: service_healthy
@@ -105,8 +107,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.4'
-          memory: 100M    
+          cpus: '0.45'
+          memory: 90M
 
   nginx:
     image: nginx:alpine
@@ -122,7 +124,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.2'
+          cpus: '0.1'
           memory: 70M
 
 networks:

@@ -47,7 +47,8 @@ services:
     restart: unless-stopped
 
   app-native-1:
-    image: docker.io/maxsonferovante/api-payment-processor
+    image: docker.io/maxsonferovante/api-payment-processor:latest
+    pull_policy: always
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
@@ -66,7 +67,8 @@ services:
           memory: 65M
 
   app-native-2:
-    image: docker.io/maxsonferovante/api-payment-processor
+    image: docker.io/maxsonferovante/api-payment-processor:latest
+    pull_policy: always
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
@@ -87,6 +89,7 @@ services:
   # Processador assíncrono de pagamentos - consome mensagens do Redis
   async-worker:
     image: docker.io/maxsonferovante/async-payment-processor:latest
+    pull_policy: always
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379

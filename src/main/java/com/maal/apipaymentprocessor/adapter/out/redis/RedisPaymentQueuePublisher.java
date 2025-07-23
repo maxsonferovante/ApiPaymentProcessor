@@ -9,9 +9,15 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.stereotype.Component;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Component
 public class RedisPaymentQueuePublisher implements PaymentQueuePublisher {
     
+
+    private final Logger logger = LoggerFactory.getLogger(RedisPaymentQueuePublisher.class);
+
     private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;
 
@@ -29,8 +35,10 @@ public class RedisPaymentQueuePublisher implements PaymentQueuePublisher {
             String paymentJson = objectMapper.writeValueAsString(payment);
             redisTemplate.opsForList().rightPush(paymentsMainQueueName, paymentJson);
         } catch (RedisConnectionFailureException | JsonProcessingException e) {
-            // Log errors silently to maintain performance
-            // Error handling implemented - connection and serialization issues handled gracefully
+            logger.error("Error publishing payment to Redis", e);
+        }
+        catch (Exception e) {
+            logger.error("Error publishing payment to Redis", e);
         }
     }
 }

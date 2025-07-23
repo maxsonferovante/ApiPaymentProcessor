@@ -1,8 +1,6 @@
 package com.maal.apipaymentprocessor.application.service;
 
 import com.maal.apipaymentprocessor.domain.model.Payment;
-import com.maal.apipaymentprocessor.domain.model.PaymentProcessorType;
-import com.maal.apipaymentprocessor.domain.model.PaymentStatus;
 import com.maal.apipaymentprocessor.domain.port.in.ProcessPaymentUseCase;
 import com.maal.apipaymentprocessor.domain.port.out.PaymentQueuePublisher;
 import com.maal.apipaymentprocessor.entrypoint.web.dto.PaymentRequest;
@@ -32,12 +30,13 @@ public class PaymentService implements ProcessPaymentUseCase {
         }
 
         Instant timestamp = Instant.now();
+        
+        // CORREÇÃO: Usar construtor de 3 parâmetros para evitar problemas de serialização
+        // O PaymentProcessorType será determinado pelo async-worker após processamento
         Payment payment = new Payment(
                 request.getCorrelationId(),
                 request.getAmount(),
-                timestamp,
-                PaymentProcessorType.DEFAULT,
-                PaymentStatus.PENDING
+                timestamp
         );
         
         // Apenas publica na fila Redis - não salva mais no banco

@@ -26,14 +26,8 @@ public class PaymentController {
 
     @PostMapping(value = "/payments", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> receivePayment(@RequestBody PaymentRequest request) {
-        try {
-            processPaymentUseCase.receivePayment(request);
-            return ResponseEntity.ok().build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        } catch (PaymentProcessingException e) {
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
-        }
+        processPaymentUseCase.receivePayment(request);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping(value = "/payments-summary", produces = MediaType.APPLICATION_JSON_VALUE)

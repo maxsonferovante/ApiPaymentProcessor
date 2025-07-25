@@ -63,7 +63,6 @@ public class PaymentSummaryService implements PaymentSummaryUseCase {
 
         SummaryDetails defaultSummary = calculateSummaryForProcessor(DEFAULT_PAYMENTS_LIST_KEY, fromDate, toDate);
         SummaryDetails fallbackSummary = calculateSummaryForProcessor(FALLBACK_PAYMENTS_LIST_KEY, fromDate, toDate);
-
         return new PaymentSummaryGetResponse(defaultSummary, fallbackSummary);
     }
 

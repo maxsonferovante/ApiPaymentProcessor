@@ -2,6 +2,7 @@ package com.maal.apipaymentprocessor.adapter.out.redis;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.maal.apipaymentprocessor.domain.exception.PaymentProcessingException;
 import com.maal.apipaymentprocessor.domain.model.Payment;
 import com.maal.apipaymentprocessor.domain.port.out.PaymentQueuePublisher;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,11 +35,9 @@ public class RedisPaymentQueuePublisher implements PaymentQueuePublisher {
         try {
             String paymentJson = objectMapper.writeValueAsString(payment);
             redisTemplate.opsForList().rightPush(paymentsMainQueueName, paymentJson);
-        } catch (RedisConnectionFailureException | JsonProcessingException e) {
-            logger.error("Error publishing payment to Redis", e);
-        }
-        catch (Exception e) {
-            logger.error("Error publishing payment to Redis", e);
+        } catch (Exception e) {
+            logger.warn("Payment publishing failed", e);
+            throw new PaymentProcessingException("Failed to publish payment to Redis queue: " + e.getMessage(), e.getCause());
         }
     }
 }

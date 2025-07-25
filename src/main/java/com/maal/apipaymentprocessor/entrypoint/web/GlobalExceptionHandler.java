@@ -1,5 +1,6 @@
 package com.maal.apipaymentprocessor.entrypoint.web;
 
+import com.maal.apipaymentprocessor.domain.exception.PaymentProcessingException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -99,4 +100,18 @@ public class GlobalExceptionHandler {
                 "status", 400
             ));
     }
+    /**
+     * Captura falha no enfilamento de pagamento, lançando uma exceção com HTTP 503
+     */
+    @ExceptionHandler(PaymentProcessingException.class)
+    public ResponseEntity<Map<String, Object>> handlePaymentProcessingException(PaymentProcessingException ex) {
+        return ResponseEntity
+            .status(HttpStatus.SERVICE_UNAVAILABLE) // 503 Service Unavailable
+            .body(Map.of(
+                "erro", "Falha no processamento de pagamento. Tente novamente mais tarde.",
+                "descricao", ex.getMessage(),
+                "status", 503
+            ));
+    }
+
 } 

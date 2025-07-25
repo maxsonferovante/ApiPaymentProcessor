@@ -13,8 +13,8 @@ import java.math.BigDecimal; // Certifique-se de importar
 @Builder
 public class SummaryDetails {
     // Getters e Setters
-    private Integer totalRequests;
-    private BigDecimal totalAmount;
+    private Integer totalRequests = 0;
+    private BigDecimal totalAmount = BigDecimal.ZERO;
 
     // Construtor padrão para serialização JSON
     public SummaryDetails() {

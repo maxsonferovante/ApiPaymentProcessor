@@ -34,8 +34,6 @@ dependencies {
     implementation("io.netty:netty-all:4.2.3.Final")
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks.withType<Test> {
@@ -54,7 +52,12 @@ tasks.withType<JavaExec> {
 tasks.named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
     jvmArgs(
         "--sun-misc-unsafe-memory-access=allow",
-        "--enable-native-access=ALL-UNNAMED"
+        "--enable-native-access=ALL-UNNAMED",
+        // logs
+        "-Dlogging.level.org.springframework.web=DEBUG",
+        "-Dlogging.level.org.springframework.web.servlet.DispatcherServlet=DEBUG",
+        "-Dlogging.level.org.springframework.web.filter.CommonsRequestLoggingFilter=DEBUG",
+        "-Dlogging.level.org.springframework.web.filter.CommonsRequestLoggingFilter=DEBUG",
     )
 }
 
